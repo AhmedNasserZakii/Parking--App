@@ -146,6 +146,21 @@ class GetAllSlotsDataNotifier extends StateNotifier<List<SlotData>> {
       print('Error In Getting The Data From Server $e');
     }
   }
+
+  Future<void> sendAlarm(String slotCode) async {
+    final url =
+        Uri.parse('https://parking-system-3qkl.onrender.com/alertsecurity');
+
+    try {
+      final response =
+          await http.post(url, body: <String, String>{'slotNumber': slotCode});
+      if (response.statusCode == 200) {
+        print('send alart done');
+      }
+    } catch (error) {
+      throw Exception('Your send alarm Error is : $error');
+    }
+  }
 }
 
 final allSlotsDataInfo =

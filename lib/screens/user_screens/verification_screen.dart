@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parking_app/provider/gat_all_slots_provider.dart';
+import 'package:parking_app/provider/get_user_data_provider.dart';
 
 import '../../models/const.dart';
 
@@ -93,6 +95,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         await ref
             .read(userRegisterInfo.notifier)
             .checkOTP(widget.email ?? emailaccout, cominedNumber);
+
+        ref.watch(userDataProvider);
+        ref.watch(allSlotsDataInfo);
         // if (userPhoneToken != null) {
         //   sendTokenToServer(userPhoneToken!);
         //   print("Token sent to server");
@@ -110,6 +115,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         await ref
             .read(userResetPassword.notifier)
             .checkResetPasswordOTP(widget.email!, cominedNumber);
+
+        ref.watch(userDataProvider);
+        ref.watch(allSlotsDataInfo);
 
         Navigator.pushAndRemoveUntil(
           context,

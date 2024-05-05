@@ -1,3 +1,4 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,10 +8,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../provider/auth/user_login_provider.dart';
 import '../../provider/gat_all_slots_provider.dart';
+import '../../provider/get_user_data_provider.dart';
 import '../../provider/user_image.dart';
 import '../../socketService/socket_service.dart';
 import './profile_screen.dart';
-import './register_screen.dart';
+
 import '../../widgets/home_widget.dart';
 import '../../widgets/parking.dart';
 import '../../models/const.dart';
@@ -25,17 +27,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
   final SocketService _socketService = SocketService();
-  SharedPreferences? _prefs;
-  bool _showDialog = false;
 
   String? userPhoneToken;
   @override
   void initState() {
     super.initState();
     _socketService.initializeSocket();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchData();
+    });
 
     setupPushNotifications();
-    initPrefs();
   }
 
   void setupPushNotifications() async {
@@ -49,11 +51,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         sendTokenToServer(token);
       }
       FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-        _showDialog = true;
-        String messageBody = message.notification?.body ?? '';
-        _showNotificationDialog(messageBody);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Confirmation"),
+              content: Text(message.notification?.body ?? ''),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("Confirm"),
+                  onPressed: () {
+                    // Perform action on confirmation
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text("Deny"),
+                  onPressed: () {
+                    // Perform action on denial
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
       });
-
       // Listen to token updates
       // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
     } catch (e) {
@@ -74,54 +97,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  void initPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-    _showDialog = _prefs?.getBool('showDialog') ?? false;
-    if (_showDialog) {
-      _prefs?.remove('showDialog');
-    }
-  }
-
-  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print("Handling a background message: ${message.messageId}");
-    // Handle the message as required
-  }
-
-  void _showNotificationDialog(String messageBody) {
-    if (_showDialog) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Confirmation"),
-            content: Text(messageBody),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("Confirm"),
-                onPressed: () {
-                  // Perform action on confirmation
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("Deny"),
-                onPressed: () {
-                  // Perform action on denial
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-      _showDialog = false;
-    }
-  }
-
   @override
   void dispose() {
     _socketService.dispose();
     super.dispose();
+  }
+
+  void fetchData() {
+    ref.watch(userDataProvider);
+    ref.watch(allSlotsDataInfo);
   }
 
   @override
@@ -136,69 +120,92 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
       ),
       const Parking(),
-      const RegisterScreen()
+    ];
+    final items = <Widget>[
+      const Icon(
+        Icons.home_filled,
+        size: 30,
+      ),
+      const Icon(
+        Icons.map,
+        size: 30,
+      )
     ];
     return SafeArea(
       child: Scaffold(
-        // backgroundColor: Color.fromARGB(86, 185, 214, 228).withOpacity(.9),
-        appBar: AppBar(
-          backgroundColor: kOtpcolor,
-          title: Text(
-            'Hello',
-            style: GoogleFonts.luckiestGuy(
-              fontSize: 30.sp,
-              color: kMainColor,
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(right: 15.w),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (ctx) => const ProfileScreen(),
-                    ),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 25.w,
-                  backgroundColor: const Color.fromARGB(120, 218, 213, 213),
-                  foregroundImage:
-                      imageFile != null ? FileImage(imageFile) : null,
-                ),
+          // backgroundColor: Color.fromARGB(86, 185, 214, 228).withOpacity(.9),
+          appBar: AppBar(
+            backgroundColor: kOtpcolor,
+            title: Text(
+              'Hello',
+              style: GoogleFonts.luckiestGuy(
+                fontSize: 30.sp,
+                color: kMainColor,
               ),
             ),
-          ],
-        ),
-        body: Center(
-          child: widgetOptions.elementAt(_selectedIndex),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home_filled,
+            actions: [
+              Padding(
+                padding: EdgeInsets.only(right: 15.w),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 25.w,
+                    backgroundColor: const Color.fromARGB(120, 218, 213, 213),
+                    foregroundImage:
+                        imageFile != null ? FileImage(imageFile) : null,
+                  ),
                 ),
-                label: 'Home'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.map),
-              label: 'Map',
+              ),
+            ],
+          ),
+          body: Center(
+            child: widgetOptions.elementAt(_selectedIndex),
+          ),
+          bottomNavigationBar: Theme(
+            data: Theme.of(context)
+                .copyWith(iconTheme: const IconThemeData(color: kSecTextColor)),
+            child: CurvedNavigationBar(
+              backgroundColor: Colors.transparent,
+              color: const Color(0xffF3F6FF),
+              buttonBackgroundColor: kFormColor,
+              animationDuration: const Duration(milliseconds: 500),
+              animationCurve: Curves.bounceOut,
+              items: items,
+              height: 60,
+              index: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.payment),
-            //   label: 'Payment',
-            // ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: kMainColor,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-        ),
-      ),
+          )),
     );
   }
 }
+// BottomNavigationBar(
+//           items: const <BottomNavigationBarItem>[
+//             BottomNavigationBarItem(
+//                 icon: Icon(
+//                   Icons.home_filled,
+//                 ),
+//                 label: 'Home'),
+//             BottomNavigationBarItem(
+//               icon: Icon(Icons.map),
+//               label: 'Map',
+//             ),
+//             // BottomNavigationBarItem(
+//             //   icon: Icon(Icons.payment),
+//             //   label: 'Payment',
+//             // ),
+//           ],
+//           currentIndex: _selectedIndex,
+//           selectedItemColor: kMainColor,
+         
+//         ),

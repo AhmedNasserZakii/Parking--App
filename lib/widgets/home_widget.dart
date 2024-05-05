@@ -1,26 +1,56 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parking_app/models/all_user_details.dart';
+import 'package:parking_app/provider/gat_all_slots_provider.dart';
+import 'package:parking_app/provider/get_user_data_provider.dart';
+import 'package:parking_app/widgets/parking_details_card.dart';
 
-import '../widgets/card.dart';
-import '../models/const.dart';
 import '../widgets/elevated_bottom.dart';
 
-import '../widgets/timer.dart';
-
-class HomeWidget extends GetView<TimerController> {
+class HomeWidget extends ConsumerStatefulWidget {
   HomeWidget({super.key, required this.onSelectItem});
 
   void Function(int selctedIndex) onSelectItem;
+
+  @override
+  ConsumerState<HomeWidget> createState() => _HomeWidgetState();
+}
+
+class _HomeWidgetState extends ConsumerState<HomeWidget> {
+  bool isHasSlot = false;
+  String? slotCode;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      isHaveSlot();
+    });
+  }
+
+  void isHaveSlot() async {
+    final userInfoData = ref.watch(userDataProvider);
+    final List<SlotData> allSlots = await ref.watch(allSlotsDataInfo);
+
+    for (int i = 0; i <= allSlots.length; i++) {
+      if (userInfoData.id == allSlots[i].userId) {
+        setState(() {
+          isHasSlot = true;
+          slotCode = allSlots[i].code;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Get.put(TimerController());
-
-    bool isEmpty = true;
     Widget content = Column(
       children: [
         Center(
@@ -34,9 +64,10 @@ class HomeWidget extends GetView<TimerController> {
           ),
         ),
         const Spacer(),
+        SizedBox(height: MediaQuery.of(context).size.height / 40),
         ElevatedButtonApp(
             onPressed: () {
-              onSelectItem(1);
+              widget.onSelectItem(1);
             },
             label: 'Book Parking'),
         SizedBox(
@@ -44,37 +75,34 @@ class HomeWidget extends GetView<TimerController> {
         ),
       ],
     );
-    return isEmpty == true
-        ? content
-        : SingleChildScrollView(
-            child: Column(
-              children: [
-                // CircularTimer(),
-                Container(
-                  height: 230.h,
-                  width: 220.w,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: kMainColor, width: 5)),
-                  child: Obx(
-                    () => Center(
-                      child: Text(
-                        controller.time.value,
-                        style: GoogleFonts.getFont('Lato',
-                            color: kMainColor,
-                            fontSize: 45.sp,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
+    return isHasSlot
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ParkingDetailsCardScreen(
+                slotIndex: int.parse(slotCode!),
+              ),
+              TextButton.icon(
+                onPressed: isHasSlot
+                    ? () {
+                        ref
+                            .read(allSlotsDataInfo.notifier)
+                            .sendAlarm(slotCode!);
+                      }
+                    : null,
+                icon: const Icon(
+                  FontAwesomeIcons.landMineOn,
+                  size: 30,
+                  color: Colors.red,
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 12,
+                label: Text(
+                  'Take Action',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.lato(fontSize: 24, color: Colors.red),
                 ),
-                const CardInfo(),
-              ],
-            ),
-          );
+              ),
+            ],
+          )
+        : content;
   }
 }

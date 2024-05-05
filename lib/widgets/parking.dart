@@ -21,7 +21,6 @@ class Parking extends ConsumerStatefulWidget {
 class _ParkingState extends ConsumerState<Parking> {
   // List<bool> tappedStates = List.generate(8, (index) => false);
   int? tappedIndex;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class _ParkingState extends ConsumerState<Parking> {
     return FutureBuilder(
       future: ref.read(allSlotsDataInfo.notifier).getAllSlots(userToken),
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
+        // if (!snapshot.hasData) {
         //   return const Scaffold(
         //     body: Center(
         //       child: CircularProgressIndicator(),
