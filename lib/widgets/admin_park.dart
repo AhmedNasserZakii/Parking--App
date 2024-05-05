@@ -35,7 +35,7 @@ class _AdminParkState extends ConsumerState<AdminPark> {
             padding: EdgeInsets.symmetric(horizontal: 30.w),
             child: RefreshIndicator(
               onRefresh: () async {
-                await Future.delayed(Duration(seconds: 2));
+                await Future.delayed(const Duration(seconds: 2));
                 allSlotsData = ref.watch(allSlotsDataInfo);
               },
               child: GridView.builder(

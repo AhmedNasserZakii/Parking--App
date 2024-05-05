@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -178,7 +180,7 @@ class _InformationPageScreenState extends ConsumerState<InformationPageScreen> {
                                       ),
                                       SizedBox(height: 6.h),
                                       Text(
-                                        '${totalPoitns} \$',
+                                        '$totalPoitns \$',
                                         style: GoogleFonts.lato(
                                             color: const Color(0xff192342),
                                             fontSize: 18.sp,

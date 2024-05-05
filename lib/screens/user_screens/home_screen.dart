@@ -1,16 +1,12 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../provider/auth/user_login_provider.dart';
-import '../../provider/gat_all_slots_provider.dart';
 import '../../provider/user_image.dart';
 import '../../socketService/socket_service.dart';
 import './profile_screen.dart';
 import './register_screen.dart';
-
 import '../../widgets/home_widget.dart';
 import '../../widgets/parking.dart';
 import '../../models/const.dart';
@@ -26,44 +22,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
   final SocketService _socketService = SocketService();
 
-  String? userPhoneToken;
+  // String? userPhoneToken;
   @override
   void initState() {
     super.initState();
     _socketService.initializeSocket();
 
-    setupPushNotifications();
+    // setupPushNotifications();
   }
 
-  void setupPushNotifications() async {
-    try {
-      final fcm = FirebaseMessaging.instance;
-      await fcm.requestPermission();
-      final token = await fcm.getToken();
-      userPhoneToken = token;
-      print('phone token is : $token');
-      if (token != null) {
-        sendTokenToServer(token);
-      }
-      // Listen to token updates
-      // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
-    } catch (e) {
-      print('Error done $e');
-    }
-  }
+  // void setupPushNotifications() async {
+  //   try {
+  //     final fcm = FirebaseMessaging.instance;
+  //     await fcm.requestPermission();
+  //     final token = await fcm.getToken();
+  //     userPhoneToken = token;
+  //     print('phone token is : $token');
+  //     if (token != null) {
+  //       sendTokenToServer(token);
+  //     }
+  //     // Listen to token updates
+  //     // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
+  //   } catch (e) {
+  //     print('Error done $e');
+  //   }
+  // }
 
-  Future<void> sendTokenToServer(String token) async {
-    try {
-      final loginInfo = ref.watch(userLoginInfo);
-      final userToken = loginInfo.token;
-      final userId = loginInfo.id;
-      await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
-          userId: userId, userToken: userToken, userPhoneToken: token);
-      print("Token sent to server");
-    } catch (e) {
-      print('Failed to send token to server $e');
-    }
-  }
+  // Future<void> sendTokenToServer(String token) async {
+  //   try {
+  //     final loginInfo = ref.watch(userLoginInfo);
+  //     final userToken = loginInfo.token;
+  //     final userId = loginInfo.id;
+  //     await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
+  //         userId: userId, userToken: userToken, userPhoneToken: token);
+  //     print("Token sent to server");
+  //   } catch (e) {
+  //     print('Failed to send token to server $e');
+  //   }
+  // }
 
   @override
   void dispose() {

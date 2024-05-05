@@ -126,7 +126,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           validator: (value) {
                             if (value == null ||
                                 value.trim().isEmpty ||
-                                value.trim().length < 10) {
+                                value.trim().length < 5) {
                               return 'Please Enter Your Full Name';
                             }
                             return null;

@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,8 +9,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/const.dart';
+import '../../provider/auth/user_login_provider.dart';
 import '../../provider/auth/user_register_provider.dart';
 import '../../provider/auth/user_reset_password.dart';
+import '../../provider/gat_all_slots_provider.dart';
 import '../../widgets/counter_timer.dart';
 import '../../widgets/elevated_bottom.dart';
 import '../../widgets/otp.dart';
@@ -36,6 +39,41 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   String forthAnswer = '';
 
   String fifthAnswer = '';
+  String? userPhoneToken;
+
+  @override
+  void initState() {
+    super.initState();
+    setupPushNotifications();
+  }
+
+  void setupPushNotifications() async {
+    try {
+      final fcm = FirebaseMessaging.instance;
+      await fcm.requestPermission();
+      final token = await fcm.getToken();
+      userPhoneToken = token;
+      print('phone token is : $token');
+
+      // Listen to token updates
+      // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
+    } catch (e) {
+      print('Error done $e');
+    }
+  }
+
+  Future<void> sendTokenToServer(String token) async {
+    try {
+      final loginInfo = ref.watch(userLoginInfo);
+      final userToken = loginInfo.token;
+      final userId = loginInfo.id;
+      await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
+          userId: userId, userToken: userToken, userPhoneToken: token);
+    } catch (e) {
+      print('Failed to send token to server $e');
+    }
+  }
+
   void submit() async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
@@ -56,7 +94,12 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         await ref
             .read(userRegisterInfo.notifier)
             .checkOTP(widget.email ?? emailaccout, cominedNumber);
-
+        if (userPhoneToken != null) {
+          sendTokenToServer(userPhoneToken!);
+          print("Token sent to server");
+        } else {
+          print('Null token');
+        }
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(

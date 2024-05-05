@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -136,7 +138,7 @@ class PaymentScreen extends ConsumerWidget {
                             TextRow(
                                 title1: 'Total', title2: '$totalPoints points'),
                             SizedBox(
-                              height: MediaQuery.of(context).size.height / 40,
+                              height: MediaQuery.of(context).size.height / 70,
                             ),
                             TextRow(
                                 title1: 'Remaining ',
