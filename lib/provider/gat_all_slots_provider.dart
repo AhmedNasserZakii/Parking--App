@@ -99,7 +99,7 @@ class GetAllSlotsDataNotifier extends StateNotifier<List<SlotData>> {
           'Authorization': 'Bearer $userToken',
         },
         body: jsonEncode(
-          <String, String>{"fcm": userPhoneToken},
+          <String, String>{"FCMtoken": userPhoneToken},
         ),
       );
       if (resposne.statusCode != 200) {

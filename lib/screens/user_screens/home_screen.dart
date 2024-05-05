@@ -1,8 +1,12 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../provider/auth/user_login_provider.dart';
+import '../../provider/gat_all_slots_provider.dart';
 import '../../provider/user_image.dart';
 import '../../socketService/socket_service.dart';
 import './profile_screen.dart';
@@ -21,45 +25,98 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
   final SocketService _socketService = SocketService();
+  SharedPreferences? _prefs;
+  bool _showDialog = false;
 
-  // String? userPhoneToken;
+  String? userPhoneToken;
   @override
   void initState() {
     super.initState();
     _socketService.initializeSocket();
 
-    // setupPushNotifications();
+    setupPushNotifications();
+    initPrefs();
   }
 
-  // void setupPushNotifications() async {
-  //   try {
-  //     final fcm = FirebaseMessaging.instance;
-  //     await fcm.requestPermission();
-  //     final token = await fcm.getToken();
-  //     userPhoneToken = token;
-  //     print('phone token is : $token');
-  //     if (token != null) {
-  //       sendTokenToServer(token);
-  //     }
-  //     // Listen to token updates
-  //     // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
-  //   } catch (e) {
-  //     print('Error done $e');
-  //   }
-  // }
+  void setupPushNotifications() async {
+    try {
+      final fcm = FirebaseMessaging.instance;
+      await fcm.requestPermission();
+      final token = await fcm.getToken();
+      userPhoneToken = token;
+      print('phone token is : $token');
+      if (token != null) {
+        sendTokenToServer(token);
+      }
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        _showDialog = true;
+        String messageBody = message.notification?.body ?? '';
+        _showNotificationDialog(messageBody);
+      });
 
-  // Future<void> sendTokenToServer(String token) async {
-  //   try {
-  //     final loginInfo = ref.watch(userLoginInfo);
-  //     final userToken = loginInfo.token;
-  //     final userId = loginInfo.id;
-  //     await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
-  //         userId: userId, userToken: userToken, userPhoneToken: token);
-  //     print("Token sent to server");
-  //   } catch (e) {
-  //     print('Failed to send token to server $e');
-  //   }
-  // }
+      // Listen to token updates
+      // FirebaseMessaging.instance.onTokenRefresh.listen(sendTokenToServer);
+    } catch (e) {
+      print('Error done $e');
+    }
+  }
+
+  Future<void> sendTokenToServer(String token) async {
+    try {
+      final loginInfo = ref.watch(userLoginInfo);
+      final userToken = loginInfo.token;
+      final userId = loginInfo.id;
+      await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
+          userId: userId, userToken: userToken, userPhoneToken: token);
+      print("Token sent to server");
+    } catch (e) {
+      print('Failed to send token to server $e');
+    }
+  }
+
+  void initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    _showDialog = _prefs?.getBool('showDialog') ?? false;
+    if (_showDialog) {
+      _prefs?.remove('showDialog');
+    }
+  }
+
+  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print("Handling a background message: ${message.messageId}");
+    // Handle the message as required
+  }
+
+  void _showNotificationDialog(String messageBody) {
+    if (_showDialog) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Confirmation"),
+            content: Text(messageBody),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Confirm"),
+                onPressed: () {
+                  // Perform action on confirmation
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("Deny"),
+                onPressed: () {
+                  // Perform action on denial
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      _showDialog = false;
+    }
+  }
 
   @override
   void dispose() {
