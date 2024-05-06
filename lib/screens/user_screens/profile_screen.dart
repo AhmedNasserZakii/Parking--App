@@ -37,6 +37,14 @@ class _ProfileState extends ConsumerState<ProfileScreen> {
     return FutureBuilder(
       future: ref.read(userDataProvider.notifier).getUserData(userToken),
       builder: (context, snapshot) {
+        // if (snapshot.connectionState != ConnectionState.done) {
+        //   // Show loading indicator while data is fetching
+        //   return const Scaffold(
+        //     body: Center(
+        //       child: CircularProgressIndicator(),
+        //     ),
+        //   );
+        // }
         if (snapshot.hasError) {
           return const Scaffold(
             body: Center(

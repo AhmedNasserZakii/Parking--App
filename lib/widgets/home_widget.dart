@@ -12,6 +12,7 @@ import 'package:parking_app/provider/gat_all_slots_provider.dart';
 import 'package:parking_app/provider/get_user_data_provider.dart';
 import 'package:parking_app/widgets/parking_details_card.dart';
 
+import '../provider/user_logged_in.dart';
 import '../widgets/elevated_bottom.dart';
 
 class HomeWidget extends ConsumerStatefulWidget {
@@ -31,6 +32,7 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       isHaveSlot();
+      // ref.watch(userDataProvider);
     });
   }
 
@@ -58,8 +60,20 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final userInfoData = ref.watch(userLoginInfo);
-    String userToken = userInfoData.token;
+    final userInfo = ref.watch(userLoginInfo);
+    final userInfoLogin = ref.watch(userLoggedIn);
+    String userToken = '';
+    if (userInfo.token != '' || userInfo.token.trim().isNotEmpty) {
+      userToken = userInfo.token;
+    } else {
+      userToken = userInfoLogin!.token;
+    }
+    void refreshData() {
+      setState(() {
+        ref.read(userDataProvider.notifier).getUserData(userToken);
+      });
+    }
+
     Widget content = Column(
       children: [
         Center(
@@ -86,6 +100,7 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
     );
     //ref.read(userDataProvider.notifier).getUserData(userToken)
     return FutureBuilder(
+      key: ValueKey(DateTime.now()),
       future: ref.read(userDataProvider.notifier).getUserData(userToken),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -96,6 +111,7 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
           );
         } else {
           final userSlotInfo = ref.watch(userDataProvider);
+
           if (userSlotInfo.slot == null) {
             return content;
           } else {

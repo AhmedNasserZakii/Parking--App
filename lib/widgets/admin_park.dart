@@ -6,6 +6,8 @@ import '../models/all_user_details.dart';
 import '../models/const.dart';
 import '../provider/auth/user_login_provider.dart';
 import '../provider/gat_all_slots_provider.dart';
+import '../provider/get_all_users_provider.dart';
+import '../provider/user_logged_in.dart';
 
 class AdminPark extends ConsumerStatefulWidget {
   const AdminPark({super.key});
@@ -16,9 +18,25 @@ class AdminPark extends ConsumerStatefulWidget {
 
 class _AdminParkState extends ConsumerState<AdminPark> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.watch(allUsersDataInfo);
+      ref.watch(allSlotsDataInfo);
+      // ref.watch(userDataProvider);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final adminInfo = ref.watch(userLoginInfo);
-    String adminToken = adminInfo.token;
+    final adminInfoLogin = ref.watch(userLoggedIn);
+    String adminToken = '';
+    if (adminInfo.token != '' || adminInfo.token.trim().isNotEmpty) {
+      adminToken = adminInfo.token;
+    } else {
+      adminToken = adminInfoLogin!.token;
+    }
     List<SlotData> allSlotsData = ref.watch(allSlotsDataInfo);
 
     return FutureBuilder(
@@ -37,6 +55,9 @@ class _AdminParkState extends ConsumerState<AdminPark> {
               onRefresh: () async {
                 await Future.delayed(const Duration(seconds: 2));
                 allSlotsData = ref.watch(allSlotsDataInfo);
+                ref.watch(allUsersDataInfo);
+                ref.read(allSlotsDataInfo.notifier).getAllSlots(adminToken);
+                ref.read(allUsersDataInfo.notifier).getUserData(adminToken);
               },
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

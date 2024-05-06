@@ -44,7 +44,8 @@ class _ParkingState extends ConsumerState<Parking> {
     return FutureBuilder(
       future: ref.read(allSlotsDataInfo.notifier).getAllSlots(userToken),
       builder: (context, snapshot) {
-        // if (!snapshot.hasData) {
+        // if (snapshot.connectionState != ConnectionState.done) {
+        //   // Show loading indicator while data is fetching
         //   return const Scaffold(
         //     body: Center(
         //       child: CircularProgressIndicator(),

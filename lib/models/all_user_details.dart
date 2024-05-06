@@ -80,7 +80,7 @@ class UserData {
     required this.isAdmin,
     required this.isVerified,
     required this.points,
-    this.slot,
+    required this.slot,
   });
   String id;
   String userName;

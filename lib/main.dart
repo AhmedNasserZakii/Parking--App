@@ -52,10 +52,11 @@ class InitializerWidget extends ConsumerWidget {
     return FutureBuilder(
       future: ref.read(userLoggedIn.notifier).initializeUser(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const MaterialApp(
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+        if (snapshot.connectionState != ConnectionState.done) {
+          // Show loading indicator while data is fetching
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
           );
         } else if (snapshot.hasError) {
