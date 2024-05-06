@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parking_app/models/all_user_details.dart';
+import 'package:parking_app/provider/auth/user_login_provider.dart';
 import 'package:parking_app/provider/gat_all_slots_provider.dart';
 import 'package:parking_app/provider/get_user_data_provider.dart';
 import 'package:parking_app/widgets/parking_details_card.dart';
@@ -35,22 +36,32 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
     });
   }
 
-  void isHaveSlot() async {
+  Future<void> isHaveSlot() async {
     final userInfoData = ref.watch(userDataProvider);
     final List<SlotData> allSlots = await ref.watch(allSlotsDataInfo);
-
-    for (int i = 0; i <= allSlots.length; i++) {
+    bool found = false;
+    for (int i = 0; i < allSlots.length; i++) {
       if (userInfoData.id == allSlots[i].userId) {
-        setState(() {
-          isHasSlot = true;
-          slotCode = allSlots[i].code;
-        });
+        found = true;
+        slotCode = allSlots[i].code;
+        break;
       }
     }
+    if (found != isHasSlot) {
+      setState(() {
+        isHasSlot = found;
+      });
+    }
+  }
+
+  Future<void> _checkSlots() async {
+    await isHaveSlot();
   }
 
   @override
   Widget build(BuildContext context) {
+    final userInfoData = ref.watch(userLoginInfo);
+    String userToken = userInfoData.token;
     Widget content = Column(
       children: [
         Center(
@@ -75,34 +86,54 @@ class _HomeWidgetState extends ConsumerState<HomeWidget> {
         ),
       ],
     );
-    return isHasSlot
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ParkingDetailsCardScreen(
-                slotIndex: int.parse(slotCode!),
-              ),
-              TextButton.icon(
-                onPressed: isHasSlot
-                    ? () {
-                        ref
-                            .read(allSlotsDataInfo.notifier)
-                            .sendAlarm(slotCode!);
-                      }
-                    : null,
-                icon: const Icon(
-                  FontAwesomeIcons.landMineOn,
-                  size: 30,
-                  color: Colors.red,
+    //ref.read(userDataProvider.notifier).getUserData(userToken)
+    return FutureBuilder(
+      future: ref.read(userDataProvider.notifier).getUserData(userToken),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Error Accourd'),
+            ),
+          );
+        } else {
+          final userSlotInfo = ref.watch(userDataProvider);
+          if (userSlotInfo.slot == null) {
+            return content;
+          } else {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ParkingDetailsCardScreen(
+                  slotIndex: int.parse(slotCode!),
                 ),
-                label: Text(
-                  'Take Action',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.lato(fontSize: 24, color: Colors.red),
+                TextButton.icon(
+                  onPressed: isHasSlot
+                      ? () {
+                          ref
+                              .read(allSlotsDataInfo.notifier)
+                              .sendAlarm(slotCode!);
+                        }
+                      : null,
+                  icon: const Icon(
+                    FontAwesomeIcons.landMineOn,
+                    size: 30,
+                    color: Colors.red,
+                  ),
+                  label: Text(
+                    'Take Action',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.lato(fontSize: 24, color: Colors.red),
+                  ),
                 ),
-              ),
-            ],
-          )
-        : content;
+              ],
+            );
+          }
+          // return isHasSlot
+          //     ?
+          //     : content;
+        }
+      },
+    );
   }
 }

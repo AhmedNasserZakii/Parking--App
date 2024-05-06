@@ -72,144 +72,159 @@ class PaymentScreen extends ConsumerWidget {
       }
     }
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Payment Method',
-            style: latoStyle.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.w),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 5,
+    return FutureBuilder(
+      future: ref.read(userDataProvider.notifier).getUserData(userToken),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Error Accourd'),
+            ),
+          );
+        } else {
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Payment Method',
+                  style: latoStyle.copyWith(fontWeight: FontWeight.w600),
                 ),
-                Card(
-                  color: kOtpcolor,
-                  child: Padding(
-                    padding:
-                        EdgeInsets.only(top: 20.h, right: 20.w, left: 10.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height / 30,
-                        ),
-                        TextRow(
-                          title1: 'Total Points : ',
-                          title2: '$totalUserPoints point',
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height / 30,
-                        ),
-                        TextRow(
-                          title1: 'Total Hours : ',
-                          title2: '$totalHours hour',
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height / 30,
-                        ),
-                        TextRow(
-                          title1: 'Points / Hour :',
-                          title2: '$pointsPerHour points',
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height / 15,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 25,
-                ),
-                Row(
-                  children: [
-                    Container(
-                      height: 80.h,
-                      width: 5.w,
-                      color: kMainColor,
-                    ),
-                    Container(
-                      width: 270.w,
-                      height: 80.h,
-                      color: kOtpcolor,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 8.h),
-                        child: Column(
-                          children: [
-                            TextRow(
-                                title1: 'Total', title2: '$totalPoints points'),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 70,
-                            ),
-                            TextRow(
-                                title1: 'Remaining ',
-                                title2: '$remainingPoints points'),
-                          ],
-                        ),
+              ),
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 40.w),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 5,
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 10,
-                ),
-                ElevatedButtonApp(
-                  onPressed: () async {
-                    if (remainingPoints < 0) {
-                      return showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            backgroundColor: const Color(0xffF3F6FF),
-                            title: const Text(
-                              'You Dont Have enough points',
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              'You Should Charge some points',
-                              textAlign: TextAlign.center,
-                              style: latoStyle.copyWith(fontSize: 18.sp),
-                            ),
-                            actions: [
-                              Center(
-                                child: TextButton(
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            kMainColor),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(
-                                    'OK',
-                                    style:
-                                        latoStyle.copyWith(color: Colors.white),
-                                  ),
-                                ),
+                      Card(
+                        color: kOtpcolor,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: 20.h, right: 20.w, left: 10.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height / 30,
+                              ),
+                              TextRow(
+                                title1: 'Total Points : ',
+                                title2: '$totalUserPoints point',
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height / 30,
+                              ),
+                              TextRow(
+                                title1: 'Total Hours : ',
+                                title2: '$totalHours hour',
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height / 30,
+                              ),
+                              TextRow(
+                                title1: 'Points / Hour :',
+                                title2: '$pointsPerHour points',
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height / 15,
                               ),
                             ],
-                          );
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 25,
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            height: 80.h,
+                            width: 5.w,
+                            color: kMainColor,
+                          ),
+                          Container(
+                            width: 270.w,
+                            height: 80.h,
+                            color: kOtpcolor,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w, vertical: 8.h),
+                              child: Column(
+                                children: [
+                                  TextRow(
+                                      title1: 'Total',
+                                      title2: '$totalPoints points'),
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 70,
+                                  ),
+                                  TextRow(
+                                      title1: 'Remaining ',
+                                      title2: '$remainingPoints points'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 10,
+                      ),
+                      ElevatedButtonApp(
+                        onPressed: () async {
+                          if (remainingPoints < 0) {
+                            return showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  backgroundColor: const Color(0xffF3F6FF),
+                                  title: const Text(
+                                    'You Dont Have enough points',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  content: Text(
+                                    'You Should Charge some points',
+                                    textAlign: TextAlign.center,
+                                    style: latoStyle.copyWith(fontSize: 18.sp),
+                                  ),
+                                  actions: [
+                                    Center(
+                                      child: TextButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  kMainColor),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          'OK',
+                                          style: latoStyle.copyWith(
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            submitPayment();
+                          }
                         },
-                      );
-                    } else {
-                      submitPayment();
-                    }
-                  },
-                  label: 'Pay',
+                        label: 'Pay',
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 }

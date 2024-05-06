@@ -16,6 +16,7 @@ class GetUserDataNotifier extends StateNotifier<UserData> {
           isAdmin: false,
           isVerified: false,
           points: 0,
+          slot: null,
         ));
 
   Future<void> getUserData(String token) async {
@@ -38,12 +39,13 @@ class GetUserDataNotifier extends StateNotifier<UserData> {
           isAdmin: userJsonData['isAdmin'],
           isVerified: userJsonData['isVerified'],
           points: userJsonData['points'],
+          slot: userJsonData['slot'],
         );
 
         state = userData;
       } else {
         throw Exception(
-            'Faild To load Data : ${response.reasonPhrase} and user token is: $token');
+            'Faild To load Data get user data provider : ${response.reasonPhrase} and user token is: $token');
       }
     } catch (e) {
       print('Error In Getting The Data From Server $e');

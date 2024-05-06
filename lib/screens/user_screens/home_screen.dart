@@ -9,6 +9,7 @@ import '../../provider/auth/user_login_provider.dart';
 import '../../provider/gat_all_slots_provider.dart';
 import '../../provider/get_user_data_provider.dart';
 import '../../provider/user_image.dart';
+import '../../provider/user_logged_in.dart';
 import '../../socketService/socket_service.dart';
 import './profile_screen.dart';
 
@@ -28,6 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final SocketService _socketService = SocketService();
 
   String? userPhoneToken;
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +112,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final imageFile = ref.watch(userImageProvider);
+    // final loginInfo = ref.watch(userLoginInfo);
+    // String userAccountToken = loginInfo.token;
+    final userInfo = ref.watch(userLoginInfo);
+    final userInfoLogin = ref.watch(userLoggedIn);
+    String userToken = '';
+    if (userInfo.token != '' || userInfo.token.trim().isNotEmpty) {
+      userToken = userInfo.token;
+    } else {
+      userToken = userInfoLogin!.token;
+    }
+    Future future = ref.read(userDataProvider.notifier).getUserData(userToken);
+
     final List<Widget> widgetOptions = [
       HomeWidget(
         onSelectItem: (selctedIndex) {
@@ -130,61 +144,75 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         size: 30,
       )
     ];
-    return SafeArea(
-      child: Scaffold(
-          // backgroundColor: Color.fromARGB(86, 185, 214, 228).withOpacity(.9),
-          appBar: AppBar(
-            backgroundColor: kOtpcolor,
-            title: Text(
-              'Hello',
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 30.sp,
-                color: kMainColor,
-              ),
+    return FutureBuilder(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Error Accourd'),
             ),
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 15.w),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => const ProfileScreen(),
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 25.w,
-                    backgroundColor: const Color.fromARGB(120, 218, 213, 213),
-                    foregroundImage:
-                        imageFile != null ? FileImage(imageFile) : null,
+          );
+        } else {
+          return SafeArea(
+            child: Scaffold(
+                // backgroundColor: Color.fromARGB(86, 185, 214, 228).withOpacity(.9),
+                appBar: AppBar(
+                  backgroundColor: kOtpcolor,
+                  title: Text(
+                    'Hello',
+                    style: GoogleFonts.luckiestGuy(
+                      fontSize: 30.sp,
+                      color: kMainColor,
+                    ),
                   ),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 15.w),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (ctx) => const ProfileScreen(),
+                            ),
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 25.w,
+                          backgroundColor:
+                              const Color.fromARGB(120, 218, 213, 213),
+                          foregroundImage:
+                              imageFile != null ? FileImage(imageFile) : null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          body: Center(
-            child: widgetOptions.elementAt(_selectedIndex),
-          ),
-          bottomNavigationBar: Theme(
-            data: Theme.of(context)
-                .copyWith(iconTheme: const IconThemeData(color: kSecTextColor)),
-            child: CurvedNavigationBar(
-              backgroundColor: Colors.transparent,
-              color: const Color(0xffF3F6FF),
-              buttonBackgroundColor: kFormColor,
-              animationDuration: const Duration(milliseconds: 500),
-              animationCurve: Curves.bounceOut,
-              items: items,
-              height: 60,
-              index: _selectedIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-            ),
-          )),
+                body: Center(
+                  child: widgetOptions.elementAt(_selectedIndex),
+                ),
+                bottomNavigationBar: Theme(
+                  data: Theme.of(context).copyWith(
+                      iconTheme: const IconThemeData(color: kSecTextColor)),
+                  child: CurvedNavigationBar(
+                    backgroundColor: Colors.transparent,
+                    color: const Color(0xffF3F6FF),
+                    buttonBackgroundColor: kFormColor,
+                    animationDuration: const Duration(milliseconds: 500),
+                    animationCurve: Curves.bounceOut,
+                    items: items,
+                    height: 60,
+                    index: _selectedIndex,
+                    onTap: (index) {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
+                  ),
+                )),
+          );
+        }
+      },
     );
   }
 }

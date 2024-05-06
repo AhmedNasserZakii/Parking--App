@@ -37,16 +37,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String userToken = '';
 
   void _submit() async {
-    setState(() {
-      isLoading = true;
-    });
-
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
     }
     _form.currentState!.save();
-
+    setState(() {
+      isLoading = true;
+    });
     try {
       await ref.read(userLoginInfo.notifier).login(_email, _password);
       final loginInfo = ref.watch(userLoginInfo);

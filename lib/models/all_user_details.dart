@@ -80,12 +80,14 @@ class UserData {
     required this.isAdmin,
     required this.isVerified,
     required this.points,
+    this.slot,
   });
   String id;
   String userName;
   String email;
   String mobileNumber;
   String carType;
+  dynamic slot;
   bool isAdmin;
   bool isVerified;
   int points;
@@ -100,11 +102,12 @@ class UserData {
       mobileNumber: json['mobileNumber'],
       carType: json['carType'],
       isVerified: json['isVerified'],
+      slot: json['slot'],
     );
   }
   @override
   String toString() {
-    return 'UserData{id: $id, isAdmin: $isAdmin, username: $userName, points: $points, email: $email, mobileNumber: $mobileNumber, carType: $carType, isVerified: $isVerified}';
+    return 'UserData{id: $id, isAdmin: $isAdmin, username: $userName, points: $points, email: $email, mobileNumber: $mobileNumber, carType: $carType, isVerified: $isVerified , slot: $slot} ';
   }
 }
 

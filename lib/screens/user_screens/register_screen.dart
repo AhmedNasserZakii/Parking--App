@@ -32,16 +32,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool isloading = false;
 
   void _submit() async {
-    setState(() {
-      isloading = true;
-    });
-
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
     }
     _form.currentState!.save();
-
+    setState(() {
+      isloading = true;
+    });
     try {
       await ref.read(userRegisterInfo.notifier).registerUser(
             _enteredName,
