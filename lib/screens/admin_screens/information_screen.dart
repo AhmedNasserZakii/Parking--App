@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:parking_app/models/all_user_details.dart';
@@ -104,7 +103,7 @@ class _InformationPageScreenState extends ConsumerState<InformationPageScreen> {
     //await Future.delayed(const Duration(seconds: 1));
     print('we are in update points admin function ');
     bool isUpdated = await ref.read(allSlotsDataInfo.notifier).updateUserPoints(
-        token: adminToken, userId: widget.userId, points: totalPoints!);
+        token: adminToken, userId: widget.userId, points: totalPoints);
 
     if (isUpdated) {
       print('true');

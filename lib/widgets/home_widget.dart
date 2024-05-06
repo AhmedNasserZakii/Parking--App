@@ -1,13 +1,11 @@
 // ignore_for_file: must_be_immutable
 
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'package:parking_app/models/all_user_details.dart';
 import 'package:parking_app/provider/auth/user_login_provider.dart';
 import 'package:parking_app/provider/gat_all_slots_provider.dart';

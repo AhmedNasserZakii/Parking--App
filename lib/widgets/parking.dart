@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 import '../models/all_user_details.dart';
 import '../models/const.dart';
 import '../provider/auth/user_login_provider.dart';
-
 import '../provider/gat_all_slots_provider.dart';
 import '../provider/user_logged_in.dart';
 import '../screens/user_screens/parking_details.dart';

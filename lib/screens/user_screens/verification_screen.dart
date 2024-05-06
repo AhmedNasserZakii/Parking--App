@@ -11,15 +11,11 @@ import 'package:parking_app/provider/get_user_data_provider.dart';
 import 'package:parking_app/screens/login_screen.dart';
 
 import '../../models/const.dart';
-
-import '../../provider/auth/user_login_provider.dart';
 import '../../provider/auth/user_register_provider.dart';
 import '../../provider/auth/user_reset_password.dart';
-
 import '../../widgets/counter_timer.dart';
 import '../../widgets/elevated_bottom.dart';
 import '../../widgets/otp.dart';
-import 'home_screen.dart';
 import 'new_password_screen.dart';
 
 class VerificationScreen extends ConsumerStatefulWidget {
