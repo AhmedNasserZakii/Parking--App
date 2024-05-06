@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:parking_app/models/all_user_details.dart';
 
 import '../../models/const.dart';
 import '../../provider/auth/user_login_provider.dart';
@@ -35,39 +37,95 @@ class InformationPageScreen extends ConsumerStatefulWidget {
 }
 
 class _InformationPageScreenState extends ConsumerState<InformationPageScreen> {
+  GlobalKey<ScaffoldState> _key = GlobalKey();
+  late int totalPoints;
+
   @override
-  Widget build(BuildContext context) {
-    final adminInfo = ref.watch(userLoginInfo);
-    String adminToken = adminInfo.token;
-    int userEnteredPoints;
-    int totalPoitns = widget.currentPoints;
+  void initState() {
+    super.initState();
+    totalPoints = widget.currentPoints;
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   fetchData();
+    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('in init state');
+      int? newPoints;
+      List<UserData> allUsersinfo = ref.watch(allUsersDataInfo);
+      for (int i = 0; i < allUsersinfo.length; i++) {
+        if (allUsersinfo[i].id == widget.userId) {
+          setState(() {
+            newPoints = allUsersinfo[i].points;
+            print('new points = $newPoints');
+          });
+        } else {
+          newPoints = widget.currentPoints;
+        }
+      }
 
-    // @override
-    // void initState() {
-    //   super.initState();
-    //   ref.read(allUsersDataInfo.notifier).getUserData(adminToken);
-    // }
+      if (totalPoints != newPoints) {
+        print('in sec if!');
+        setState(() {
+          totalPoints = widget.currentPoints + newPoints!;
+        });
+      }
+    });
+  }
 
-    Future<bool> sumbitAddPoints() async {
-      // ref.read(allSlotsDataInfo.notifier).getAllSlots(userLogin.token);
-      print('we are in update points admin function ');
-      bool isUpdated = await ref
-          .read(allSlotsDataInfo.notifier)
-          .updateUserPoints(
-              token: adminToken, userId: widget.userId, points: totalPoitns);
+  void refreshScreen() {
+    setState(() {
+      // Generate a new key, forcing rebuild of the entire screen
+      _key = GlobalKey();
+    });
+  }
 
-      if (isUpdated) {
-        print('true');
-        await ref.read(userLoggedIn.notifier).initializeUser();
-        await ref.read(allUsersDataInfo.notifier).getUserData(adminToken);
-        return true;
+  Future<void> fetchData() async {
+    List<UserData> allUsersinfo = ref.watch(allUsersDataInfo);
+    for (int i = 0; i <= allUsersinfo.length; i++) {
+      if (allUsersinfo[i].id == widget.userId) {
+        setState(() {
+          totalPoints = allUsersinfo[i].points;
+        });
       } else {
-        print('false');
-        return false;
+        totalPoints = widget.currentPoints;
       }
     }
+  }
 
+  Future<bool> sumbitAddPoints() async {
+    final adminInfo = ref.watch(userLoginInfo);
+    final adminInfoLogin = ref.watch(userLoggedIn);
+    String adminToken = '';
+    if (adminInfo.token != '' || adminInfo.token.trim().isNotEmpty) {
+      adminToken = adminInfo.token;
+    } else {
+      adminToken = adminInfoLogin!.token;
+    }
+    // ref.read(allSlotsDataInfo.notifier).getAllSlots(userLogin.token);
+    //await Future.delayed(const Duration(seconds: 1));
+    print('we are in update points admin function ');
+    bool isUpdated = await ref.read(allSlotsDataInfo.notifier).updateUserPoints(
+        token: adminToken, userId: widget.userId, points: totalPoints!);
+
+    if (isUpdated) {
+      print('true');
+      await ref.read(userLoggedIn.notifier).initializeUser();
+      await ref.read(allUsersDataInfo.notifier).getUserData(adminToken);
+      refreshScreen();
+      //await fetchData();
+
+      return true;
+    } else {
+      print('false');
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int userEnteredPoints;
+    // int totalPoitns = widget.currentPoints;
     return SafeArea(
+      key: _key,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: kMainColor,
@@ -179,7 +237,7 @@ class _InformationPageScreenState extends ConsumerState<InformationPageScreen> {
                                       ),
                                       SizedBox(height: 6.h),
                                       Text(
-                                        '$totalPoitns \$',
+                                        '$totalPoints \$',
                                         style: GoogleFonts.lato(
                                             color: const Color(0xff192342),
                                             fontSize: 18.sp,
@@ -273,7 +331,8 @@ class _InformationPageScreenState extends ConsumerState<InformationPageScreen> {
                     AddPoints(
                       onEnteredPoints: (enteredPoints) {
                         userEnteredPoints = enteredPoints;
-                        totalPoitns = userEnteredPoints + widget.currentPoints;
+
+                        totalPoints = userEnteredPoints + widget.currentPoints;
                       },
                       onSumbited: sumbitAddPoints,
                     ),

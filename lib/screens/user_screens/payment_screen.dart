@@ -9,6 +9,7 @@ import '../../models/const.dart';
 import '../../provider/auth/user_login_provider.dart';
 import '../../provider/gat_all_slots_provider.dart';
 import '../../provider/get_user_data_provider.dart';
+import '../../provider/user_logged_in.dart';
 import '../../widgets/elevated_bottom.dart';
 import 'payment_falied.dart';
 import 'payment_success_screen.dart';
@@ -35,12 +36,19 @@ class PaymentScreen extends ConsumerWidget {
     int remainingPoints = totalUserPoints - totalPoints;
 
     String userId = userDataInfo.id;
-    String userToken = loginInfo.token;
+    String userToken = '';
     List<SlotData> allSlotsData = ref.watch(allSlotsDataInfo);
     String slotId = ref.read(allSlotsDataInfo.notifier).getSpeceficSlotId(
         allSlots: allSlotsData, slotCode: slotCode.toString());
 
     Future<void> submitPayment() async {
+      final userInfo = ref.watch(userLoginInfo);
+      final userInfoLogin = ref.watch(userLoggedIn);
+      if (userInfo.token != '' || userInfo.token.trim().isNotEmpty) {
+        userToken = userInfo.token;
+      } else {
+        userToken = userInfoLogin!.token;
+      }
       bool updateSlotSuccess = await ref
           .read(allSlotsDataInfo.notifier)
           .updateSlot(

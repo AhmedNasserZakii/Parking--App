@@ -30,7 +30,8 @@ class GetAllUsersDataNotifier extends StateNotifier<List<UserData>> {
         // print(
         //     'your user data is : ${json.decode(response.body)['data'][1]['username']},  and your list : $allUsersData ');
       } else {
-        throw Exception('Faild To load Data : ${response.reasonPhrase}');
+        throw Exception(
+            'Faild To load Data : ${response.reasonPhrase} and user token is: $token');
       }
     } catch (e) {
       print('Error In Getting The Data From Server $e');

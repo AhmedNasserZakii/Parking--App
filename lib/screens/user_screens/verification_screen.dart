@@ -8,9 +8,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parking_app/provider/gat_all_slots_provider.dart';
 import 'package:parking_app/provider/get_user_data_provider.dart';
+import 'package:parking_app/screens/login_screen.dart';
 
 import '../../models/const.dart';
 
+import '../../provider/auth/user_login_provider.dart';
 import '../../provider/auth/user_register_provider.dart';
 import '../../provider/auth/user_reset_password.dart';
 
@@ -96,18 +98,10 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
             .read(userRegisterInfo.notifier)
             .checkOTP(widget.email ?? emailaccout, cominedNumber);
 
-        ref.watch(userDataProvider);
-        ref.watch(allSlotsDataInfo);
-        // if (userPhoneToken != null) {
-        //   sendTokenToServer(userPhoneToken!);
-        //   print("Token sent to server");
-        // } else {
-        //   print('Null token');
-        // }
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
+            builder: (context) => const LoginScreen(),
           ),
           (Route<dynamic> route) => false,
         );

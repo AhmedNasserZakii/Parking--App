@@ -80,7 +80,8 @@ class GetAllSlotsDataNotifier extends StateNotifier<List<SlotData>> {
         return false;
       }
     } catch (error) {
-      print('Error Occurred when update slote $error');
+      print(
+          'Error Occurred when update slote $error and user token is: $token');
       return false;
     }
   }
@@ -140,7 +141,8 @@ class GetAllSlotsDataNotifier extends StateNotifier<List<SlotData>> {
         // print(
         //     ' your slotCode is : ${allSlotsData[0].code} ,your Slots Length = ${allSlotsData.length}, your user data is : ${json.decode(response.body)['data'][1]['id']},  and your list : $allSlotsData ');
       } else {
-        throw Exception('Faild To load Data : ${response.reasonPhrase}');
+        throw Exception(
+            'Faild To load Data : ${response.reasonPhrase} and user token is: $token');
       }
     } catch (e) {
       print('Error In Getting The Data From Server $e');

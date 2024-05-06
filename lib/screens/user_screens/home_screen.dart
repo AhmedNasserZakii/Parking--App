@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../provider/auth/user_login_provider.dart';
 import '../../provider/gat_all_slots_provider.dart';
@@ -91,7 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final userId = loginInfo.id;
       await ref.read(allSlotsDataInfo.notifier).putphoneUserToken(
           userId: userId, userToken: userToken, userPhoneToken: token);
-      print("Token sent to server");
+      print("Token sent to server and user token is: $token");
     } catch (e) {
       print('Failed to send token to server $e');
     }
@@ -103,7 +102,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  void fetchData() {
+  void fetchData() async {
     ref.watch(userDataProvider);
     ref.watch(allSlotsDataInfo);
   }

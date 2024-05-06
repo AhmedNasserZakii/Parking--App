@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../models/all_user_details.dart';
 import '../models/const.dart';
 import '../provider/auth/user_login_provider.dart';
 
 import '../provider/gat_all_slots_provider.dart';
+import '../provider/user_logged_in.dart';
 import '../screens/user_screens/parking_details.dart';
 import '../widgets/elevated_bottom.dart';
 
@@ -21,11 +23,26 @@ class Parking extends ConsumerStatefulWidget {
 class _ParkingState extends ConsumerState<Parking> {
   // List<bool> tappedStates = List.generate(8, (index) => false);
   int? tappedIndex;
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.watch(userLoginInfo);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final userInfo = ref.watch(userLoginInfo);
-    String userToken = userInfo.token;
+    final userInfoLogin = ref.watch(userLoggedIn);
+    String userToken = '';
+    if (userInfo.token != '' || userInfo.token.trim().isNotEmpty) {
+      userToken = userInfo.token;
+    } else {
+      userToken = userInfoLogin!.token;
+    }
+
     List<SlotData> allSlotsData = ref.watch(allSlotsDataInfo);
     return FutureBuilder(
       future: ref.read(allSlotsDataInfo.notifier).getAllSlots(userToken),

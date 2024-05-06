@@ -32,6 +32,7 @@ class UserRegisterInfo extends StateNotifier<RegisterInfo> {
     if (response.statusCode == 201) {
       final token = json.decode(response.body)['token'];
       final userId = json.decode(response.body)['id'];
+      userToken = token;
       //userToken = token.toString();
       sendVerificationCode(emailAdress, userId);
 
@@ -96,6 +97,14 @@ class UserRegisterInfo extends StateNotifier<RegisterInfo> {
   //   final userJsonData = jsonDecode(response.body);
   //   print('all users info include id ${response.body}');
   // }
+
+  String getuserToken() {
+    if (userToken == null) {
+      return '';
+    } else {
+      return userToken!;
+    }
+  }
 }
 
 final userRegisterInfo = StateNotifierProvider<UserRegisterInfo, RegisterInfo>(
