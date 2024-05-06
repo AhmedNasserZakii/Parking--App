@@ -56,22 +56,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text("Confirmation"),
-              content: Text(message.notification?.body ?? ''),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text("Confirm"),
-                  onPressed: () {
-                    // Perform action on confirmation
-                    Navigator.of(context).pop();
-                  },
+              backgroundColor: kOtpcolor,
+              title: Text(
+                "Alert",
+                textAlign: TextAlign.center,
+                style: latoStyle.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 40,
+                    color: Colors.red),
+              ),
+              content: Text(
+                message.notification?.body ?? '',
+                style: latoStyle.copyWith(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 20.sp,
                 ),
-                TextButton(
-                  child: const Text("Deny"),
-                  onPressed: () {
-                    // Perform action on denial
-                    Navigator.of(context).pop();
-                  },
+              ),
+              actions: [
+                Center(
+                  child: TextButton(
+                    child: Text(
+                      "Ok",
+                      style: latoStyle.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 24,
+                      ),
+                    ),
+                    onPressed: () {
+                      // Perform action on confirmation
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 ),
               ],
             );
